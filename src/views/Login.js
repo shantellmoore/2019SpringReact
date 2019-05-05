@@ -4,32 +4,30 @@ import { Login } from "../models/users";
 import * as fb from "../models/facebook";
 import toastr from 'toastr';
 
-
-export default () =>{
-  const[email, setEmail ]= React.useState("Shan");
-  const[password, setPassword]= React.useState("Shan");
-
-
+export default props=> {
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
 
   async function submit(e){
     e.preventDefault();
     try {
-      await Login(this.data);
-      this.$router.push(Globals.redirectRoute)
+      props.login({ x: await Login({email, password})});
+      props.history.push('/')
       toastr.success("You've logged in successfully!")
     } catch (error) {
       Globals.errors.push(error);
       toastr.error(error.message);
     }
-}
-async function facebookLogin(){
-  const m = await fb.Login();
-  Globals.user = { FirstName: m.name, Email: m.email }
-}
-}
+  }
+  async function facebookLogin(e){
+    e.preventDefault();
+    const m = await fb.Login();
+    props.login(m);
+    console.log( {m} );
+  }
 
-  return(
-  <div className="row">
+return (
+<div className="row">
     <div className="col-lg-6">
     <div className="card">
       <div className="card-header">
@@ -48,28 +46,25 @@ async function facebookLogin(){
       <div className="card-body">
         <h4 className="card-title">Login</h4>
         <div className="card-text">
-            <form submit="submit">
-                <div classNameName="form-group">
-                  <label for="Email">Email</label>
-                  <input type="text" v-model="data.email"
-                    className="form-control" name="Email" id="Email" aria-describedby="helpEmail" placeholder="Email"/>
+            <form onSubmit={submit}>
+                <div className="form-group">
+                  <label htmlFor="Email">Email</label>
+                  <input type="text" value={email} onChange={e=> setEmail(e.currentTarget.value)}
+                    className="form-control" name="Email" id="Email" aria-describedby="helpEmail" placeholder="Email" />
                   <small id="helpEmail" className="form-text text-muted">You can use any email that you've use on our site</small>
                 </div>
                 <div className="form-group">
-                  <label for="Password">Password</label>
-                  <input type="password" v-model="data.password"
-                    className="form-control" name="Password" id="Password" placeholder="Password"/>
+                  <label htmlFor="Password">Password</label>
+                  <input type="password"  value={password} onChange={e=> setPassword(e.currentTarget.value)}
+                    className="form-control" name="Password" id="Password" placeholder="Password" />
                 </div>
                 <button type="submit" className="btn btn-success">Login</button>
             </form>
             <br />
-            <button className="btn btn-primary btn-block" click="facebookLogin">Log in with Facebook</button>
+            <button className="btn btn-primary btn-block" onClick={facebookLogin}>Log in with Facebook</button>
         </div>
       </div>
     </div>
     </div>
 </div>
-
 )}
-
-
